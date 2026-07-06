@@ -11,7 +11,7 @@ const NavRight = () => {
             <Link to={'/work'}>Work</Link>
 
             {/* btn */}
-            <Blackbgbtn text={"mishkatjamal13@gmail.com"}/>
+            <Blackbgbtn text={"Hire Me!"}/>
         </div>
     )
 }

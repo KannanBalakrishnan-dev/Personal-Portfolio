@@ -4,7 +4,7 @@ const Navleft = () => {
   return (
     <div>
         <img className='w-[10vw]'
-         src="./src/assets/logo/mishkat_logo.png"/>
+         src="./src/assets/logo/kb_logo.png"/>
     </div>
   )
 }
