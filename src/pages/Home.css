@@ -1,0 +1,41 @@
+.big-text{
+    font-family: maintext;
+}
+.main-text-3{
+    transition: all 0.3s ease;
+    color: transparent;
+    -webkit-text-stroke: 1px white;
+}
+.main-text-2{
+    transition: all 0.3s ease;
+
+}
+.main-text-1{
+    color: transparent;
+    -webkit-text-stroke: 1px black;
+}
+
+
+/* * bottom text */
+
+.main-b-text-1{
+    color: transparent;
+    -webkit-text-stroke: 1px black;
+}
+.main-b-text-2{
+    transition: all 0.3s ease;
+    opacity: 0;
+
+}
+.main-b-text-3{
+    transition: all 0.3s ease;
+    opacity: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px white;
+}
+/** cursor */
+.cursor-img{
+    transition: all 0.1s;
+    pointer-events: none;
+    
+}

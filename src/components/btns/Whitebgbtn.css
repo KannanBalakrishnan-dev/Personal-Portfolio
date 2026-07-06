@@ -1,0 +1,12 @@
+.whitebgbtn {
+    background-color: var(--white-btn);
+    color: var(--black-btn);
+    padding: var(--padding-sm) var(--padding-xl);
+    border-radius: var(--radius-sm);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid black;
+}
+
+.whitebgbtn:hover {
+    padding: var(--padding-sm) 3rem;
+}

@@ -1,0 +1,88 @@
+.marquee{
+    animation:marquees 10s linear infinite;
+}
+.marquee img{
+    width: 150px;
+    object-fit: contain;
+}
+
+@keyframes marquees {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+
+
+/** swiper */
+.swiper {
+  width: 100%;
+  height: 100%;
+
+}
+.mySwiper{
+  padding: 0px 100px !important;
+}
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #444;
+border-radius: 10px;
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+  transition: all 0.3s;
+}
+.swiper-slide img:hover{
+  filter: grayscale(0%);
+  cursor: pointer;
+}
+.swiper {
+  margin-left: auto;
+  margin-right: auto;
+  
+}
+
+/* * arrows  custom */
+.custom-prev, .custom-next{
+  background-color: transparent;
+  border: 2px solid white;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  font-size: 30px;
+  text-align: center;
+  padding-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.custom-next:hover{
+  background-color: #fff;
+  color: black;
+}
+.custom-prev:hover{
+  background-color: #fff;
+  color: black;
+}
+
+/* * text scroll */
+.bottom-text ,.top-text{
+  transform: rotate(5deg);
+}
+.top-t-b{
+  color: transparent;
+    -webkit-text-stroke: 1px black;
+}
