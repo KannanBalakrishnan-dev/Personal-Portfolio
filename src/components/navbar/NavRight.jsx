@@ -6,12 +6,12 @@ const NavRight = () => {
     return (
         <div className='navright'>
 
-            <Link to={'/'}>Home</Link>
-            <Link to={'/design'}>Design</Link>
-            <Link to={'/work'}>Work</Link>
+            {/* <Link to={'/'}>Home</Link> */}
+            {/* <Link to={'/design'}>Design</Link> */}
+            {/* <Link to={'/work'}>Work</Link> */}
 
             {/* btn */}
-            <Blackbgbtn text={"Hire Me!"}/>
+            <Blackbgbtn text={"Get in touch"}/>
         </div>
     )
 }
