@@ -2,43 +2,31 @@ import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import "./HoverMenu.css";
 
-
-//  * HoverMenu
-//  * A pill-shaped nav trigger that expands into a card with a stacked
-//  * menu list (label + thumbnail) and a social links section, matching
-//  * the midu.design-style interaction: click (or hover) to expand, click
-//  * outside / press Escape / re-click to collapse.
- 
-//   Usage:
-// <HoverMenu
-//  brand="KB"
-//  badge="Available for work"
-//  items={items}
-//  socials={socials}
-//  openOn="hover"
-// />
- 
-
 const panelVariants = {
-  hidden: { opacity: 0, scale: 0.96, y: -8 },
+  hidden: { opacity: 0, scale: 0.94, y: -14 },
   show: {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], when: "beforeChildren", staggerChildren: 0.06 },
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1], // smooth "expo-out" feel — professional, no bounce
+      when: "beforeChildren",
+      staggerChildren: 0.09,
+    },
   },
   exit: {
     opacity: 0,
-    scale: 0.97,
-    y: -6,
-    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] },
+    scale: 0.96,
+    y: -10,
+    transition: { duration: 0.35, ease: [0.4, 0, 1, 1] },
   },
 };
 
 const rowVariants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  exit: { opacity: 0, y: 8, transition: { duration: 0.15 } },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
 };
 
 const HoverMenu = ({
@@ -46,12 +34,20 @@ const HoverMenu = ({
   badge = null,
   items = [],
   socials = [],
-  openOn = "hover", // "click" | "hover"
+  closeDelay = 150, // ms grace period before closing on mouse leave
 }) => {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
+  const closeTimer = useRef(null);
 
-  // click outside to close
+  const clearCloseTimer = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  // Click outside + Escape to close
   useEffect(() => {
     const handleClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -67,21 +63,32 @@ const HoverMenu = ({
     };
   }, []);
 
-  const hoverProps =
-    openOn === "hover"
-      ? {
-          onMouseEnter: () => setOpen(true),
-          onMouseLeave: () => setOpen(false),
-        }
-      : {};
+  // Opens only when the mouse actually enters the wrapper (pill or panel),
+  // closes shortly after it truly leaves. No proximity/pre-touch trigger.
+  const handleMouseEnter = () => {
+    clearCloseTimer();
+    setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    clearCloseTimer();
+    closeTimer.current = setTimeout(() => setOpen(false), closeDelay);
+  };
+
+  useEffect(() => clearCloseTimer, []);
 
   return (
-    <div className="hover-menu-wrapper" ref={wrapperRef} {...hoverProps}>
+    <div
+      className="hover-menu-wrapper"
+      ref={wrapperRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <motion.button
         className="hover-menu-trigger"
-        onClick={() => openOn === "click" && setOpen((v) => !v)}
+        onClick={() => setOpen((v) => !v)} // tap-to-toggle for touch devices
         layout
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <span className="hover-menu-trigger-icon">
           <span className={`hm-dot ${open ? "hm-dot-open" : ""}`} />
@@ -101,11 +108,7 @@ const HoverMenu = ({
           >
             <ul className="hover-menu-list">
               {items.map((item, i) => (
-                <motion.li
-                  key={item.label ?? i}
-                  variants={rowVariants}
-                  className="hover-menu-row"
-                >
+                <motion.li key={item.label ?? i} variants={rowVariants} className="hover-menu-row">
                   <a
                     href={item.href || "#"}
                     className="hover-menu-row-link"

@@ -4,10 +4,11 @@ import NavRight from './NavRight'
 
 const Navbar = () => {
   return (
-    <div className='flex justify-between items-center px-[5rem] py-[2rem]'>
-        <Navleft/>
-        <NavRight/>
-    </div>
+    <div id='home' className='flex justify-between items-center px-[5rem] py-[2rem]'>
+    <Navleft/>
+    <NavRight/>
+</div>
+   
   )
 }
 
