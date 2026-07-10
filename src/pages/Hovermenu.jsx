@@ -2,153 +2,175 @@ import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import "./HoverMenu.css";
 
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  exit: { opacity: 0, transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } },
+};
+
 const panelVariants = {
-  hidden: { opacity: 0, scale: 0.94, y: -14 },
+  hidden: {},
   show: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1], // smooth "expo-out" feel — professional, no bounce
-      when: "beforeChildren",
-      staggerChildren: 0.09,
-    },
+    transition: { when: "beforeChildren", staggerChildren: 0.06, delayChildren: 0.1 },
   },
-  exit: {
-    opacity: 0,
-    scale: 0.96,
-    y: -10,
-    transition: { duration: 0.35, ease: [0.4, 0, 1, 1] },
-  },
+  exit: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
 };
 
 const rowVariants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-  exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  exit: { opacity: 0, y: 20, transition: { duration: 0.25, ease: [0.4, 0, 1, 1] } },
 };
 
 const HoverMenu = ({
-  brand = "Menu",
+  brand = "N",
   badge = null,
   items = [],
   socials = [],
-  closeDelay = 150, // ms grace period before closing on mouse leave
 }) => {
   const [open, setOpen] = useState(false);
+  const [visible, setVisible] = useState(true); // false = hidden while scrolling down
   const wrapperRef = useRef(null);
-  const closeTimer = useRef(null);
+  const lastScrollY = useRef(0);
 
-  const clearCloseTimer = () => {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  };
-
-  // Click outside + Escape to close
   useEffect(() => {
-    const handleClick = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
     const handleEsc = (e) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleEsc);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleEsc);
-    };
+    return () => document.removeEventListener("keydown", handleEsc);
   }, []);
 
-  // Opens only when the mouse actually enters the wrapper (pill or panel),
-  // closes shortly after it truly leaves. No proximity/pre-touch trigger.
-  const handleMouseEnter = () => {
-    clearCloseTimer();
-    setOpen(true);
-  };
+  // Scroll direction: hide when scrolling down, show when scrolling up.
+  // Skipped while the overlay is open, so the pill doesn't vanish mid-use.
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
 
-  const handleMouseLeave = () => {
-    clearCloseTimer();
-    closeTimer.current = setTimeout(() => setOpen(false), closeDelay);
-  };
+    const handleScroll = () => {
+      if (open) return; // never hide while the menu is open
+      const currentY = window.scrollY;
+      const goingUp = currentY < lastScrollY.current;
 
-  useEffect(() => clearCloseTimer, []);
+      // ignore tiny jitters near the very top
+      if (currentY < 10) {
+        setVisible(true);
+      } else {
+        setVisible(goingUp);
+      }
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [open]);
+
+  // Lock page scroll while the overlay is open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
-    <div
-      className="hover-menu-wrapper"
-      ref={wrapperRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <motion.button
-        className="hover-menu-trigger"
-        onClick={() => setOpen((v) => !v)} // tap-to-toggle for touch devices
-        layout
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <span className="hover-menu-trigger-icon">
-          <span className={`hm-dot ${open ? "hm-dot-open" : ""}`} />
-        </span>
-        <span className="hover-menu-trigger-label">{brand}</span>
-        {badge && <span className="hover-menu-badge">{badge}</span>}
-      </motion.button>
+    <>
+      {/* Trigger pill — logo + hamburger, centered like the reference */}
+      <div className="hm-trigger-wrapper" ref={wrapperRef}>
+        <motion.button
+          className="hm-trigger"
+          onClick={() => setOpen((v) => !v)}
+          layout
+          animate={{
+            y: visible || open ? 0 : "-120%",
+            opacity: visible || open ? 1 : 0,
+          }}
+          style={{ pointerEvents: visible || open ? "auto" : "none" }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <span className="hm-trigger-logo">{brand}</span>
+          <span className={`hm-trigger-burger ${open ? "hm-trigger-burger-open" : ""}`}>
+            <span />
+            <span />
+          </span>
+          {badge && <span className="hm-trigger-badge">{badge}</span>}
+        </motion.button>
+      </div>
 
+      {/* Full-screen overlay */}
       <AnimatePresence>
         {open && (
           <motion.div
-            className="hover-menu-panel"
-            variants={panelVariants}
+            className="hm-overlay"
+            variants={overlayVariants}
             initial="hidden"
             animate="show"
             exit="exit"
           >
-            <ul className="hover-menu-list">
-              {items.map((item, i) => (
-                <motion.li key={item.label ?? i} variants={rowVariants} className="hover-menu-row">
-                  <a
+            <button className="hm-close-bar" onClick={() => setOpen(false)}>
+              CLOSE
+            </button>
+
+            <motion.div
+              className="hm-overlay-body"
+              variants={panelVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+            >
+              {/* Left column: newsletter + featured card */}
+              <motion.div className="hm-col hm-col-left" variants={rowVariants}>
+                <div className="hm-newsletter-pill">
+                  ✉️ Start subscribing to our newsletter
+                </div>
+                <p className="hm-newsletter-note">
+                  By subscribing to the newsletter you agree to{" "}
+                  <strong>Terms and Conditions &amp; GDPR</strong>
+                </p>
+                {items[0]?.image && (
+                  <div className="hm-feature-card">
+                    <img src={items[0].image} alt="" />
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Center column: big numbered nav */}
+              <nav className="hm-col hm-col-center">
+                {items.map((item, i) => (
+                  <motion.a
+                    key={item.label ?? i}
                     href={item.href || "#"}
-                    className="hover-menu-row-link"
+                    className="hm-nav-row"
+                    variants={rowVariants}
                     onClick={() => setOpen(false)}
                   >
-                    <span className="hover-menu-row-label">{item.label}</span>
-                    <span className="hover-menu-row-thumb">
-                      {item.image ? (
-                        <img src={item.image} alt="" />
-                      ) : (
-                        <span className="hover-menu-row-thumb-fallback" />
-                      )}
-                    </span>
-                  </a>
-                </motion.li>
-              ))}
-            </ul>
+                    <span className="hm-nav-label">{item.label}</span>
+                    <span className="hm-nav-index">{String(i + 1).padStart(2, "0")}</span>
+                  </motion.a>
+                ))}
+              </nav>
 
-            {socials.length > 0 && (
-              <motion.div className="hover-menu-socials" variants={rowVariants}>
-                <p className="hover-menu-socials-label">Social</p>
-                <div className="hover-menu-socials-list">
-                  {socials.map((s, i) => (
-                    <a
-                      key={s.label ?? i}
-                      href={s.href || "#"}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover-menu-social-link"
-                    >
-                      {s.label}
-                    </a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+              {/* Right column: rubrics / socials */}
+              {socials.length > 0 && (
+                <motion.div className="hm-col hm-col-right" variants={rowVariants}>
+                  <p className="hm-rubrics-title">Social</p>
+                  <div className="hm-rubrics-list">
+                    {socials.map((s, i) => (
+                      <a
+                        key={s.label ?? i}
+                        href={s.href || "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hm-rubrics-link"
+                      >
+                        {s.label}
+                      </a>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 

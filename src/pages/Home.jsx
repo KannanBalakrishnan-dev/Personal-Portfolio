@@ -1,9 +1,8 @@
-import { useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import Blackbgbtn from "../components/btns/Blackbgbtn";
 import Whitebgbtn from "../components/btns/Whitebgbtn";
 import TechStack from "./Techstack";
-import HoverMenu from "../pages/Hovermenu";
 // import Education from "./Education";
 import "./Home.css";
 
@@ -39,44 +38,10 @@ const btnItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-// Hoisted outside the component so identity is stable across renders
-const NAV_ITEMS = [
-  { label: "Home", image: heroImg, href: "#home" },
-  { label: "Work", image: heroImg, href: "#work" },
-  { label: "About", image: heroImg, href: "#about" },
-];
-
-const NAV_SOCIALS = [
-  { label: "GitHub", href: "https://github.com/KannanBalakrishnan-dev" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/kannan-balakrishnan-409911282/" },
-  { label: "Twitter / X", href: "https://x.com/" },
-];
-
-// Config describing the 3 stacked layers per text row, instead of hand-duplicating JSX.
-const buildLayers = (prefix, refs, delays) => [
-  { className: `main-${prefix}-1`, z: 0, delay: delays[0] },
-  { className: `main-${prefix}-2`, z: 1, delay: delays[1], ref: refs[0] },
-  { className: `main-${prefix}-3`, z: 3, delay: delays[2], ref: refs[1] },
-];
-
 const Greeting = () => (
   <motion.h3 className="capitalize text-2xl" initial="hidden" animate="show" variants={fadeUp}>
     👋, Hello my name is KannanBalakrishnan
   </motion.h3>
-);
-
-// Top navigation bar hosting the expanding hover/click menu.
-// Swap the `items`/`socials` arrays above with your real routes,
-// thumbnail images, and profile links.
-const NavBar = () => (
-  <motion.div
-    className="fixed top-6 left-6 z-50"
-    initial={{ opacity: 0, y: -16 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-  >
-    <HoverMenu brand="Menu" badge="Open to work" items={NAV_ITEMS} socials={NAV_SOCIALS} />
-  </motion.div>
 );
 
 const HeroTextStack = ({ topText2, topText3, bottomText2, bottomText3 }) => {
@@ -232,8 +197,6 @@ const Home = () => {
 
   return (
     <div className="w-full">
-      <NavBar />
-
       <section className="w-screen h-screen overflow-hidden">
         <div className="h-full w-full flex flex-col justify-center items-center px-[14vw]">
           <Greeting />
