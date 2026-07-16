@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import Blackbgbtn from "../components/btns/Blackbgbtn";
 import Whitebgbtn from "../components/btns/Whitebgbtn";
 import TechStack from "./Techstack";
-// import Education from "./Education";
+import Education from "./Education";
+import Experience from "./Experience";
 import "./Home.css";
 
 import arrowCursorImg from "../assets/arrow.webp";
@@ -227,7 +228,11 @@ const Home = () => {
       </section>
 
       <section className="w-screen">
-        {/* <Education /> */}
+        <Education />
+      </section>
+
+      <section className="w-screen">
+        <Experience/>
       </section>
     </div>
   );
